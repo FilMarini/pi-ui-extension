@@ -31,6 +31,7 @@ export type SidebarPanelInstance<State = unknown> = {
 
 export type SidebarPanelDefinition<State = unknown> = {
   readonly id: string;
+  readonly visible?: () => boolean;
   readonly layout?: SidebarPanelLayout;
   create(context: SidebarPanelContext): SidebarPanelInstance<State>;
 };

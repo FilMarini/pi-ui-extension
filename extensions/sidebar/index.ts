@@ -74,11 +74,12 @@ function createLayoutEntry(
   definition: SidebarPanelDefinition<unknown>,
   component: Component,
   tui: TUI,
-): { component: Component; basis: number | "auto"; grow: number; shrink: number; minSize?: number; maxSize?: number } {
+): { component: Component; basis: number | "auto"; grow: number; shrink: number; minSize?: number; maxSize?: number; visible?: () => boolean } {
   const layout = definition.layout;
   const maxSize = resolveMaxSize(layout, tui);
   return {
     component,
+    ...(definition.visible ? { visible: definition.visible } : {}),
     basis: layout?.basis ?? "auto",
     grow: layout?.grow ?? 0,
     shrink: layout?.shrink ?? 0,
@@ -157,7 +158,10 @@ export function installSidebar(
   const sidebar = new VStack(
     layoutEntries.flatMap(({ layoutEntry }, index) => index === 0
       ? [layoutEntry]
-      : [{ component: separators[index - 1]!, basis: 1, grow: 0, shrink: 0 }, layoutEntry]),
+      : [{ component: separators[index - 1]!, basis: 1, grow: 0, shrink: 0,
+        visible: () => (layoutEntries[index]!.definition.visible?.() ?? true) &&
+          layoutEntries.slice(0, index).some(({ definition }) => definition.visible?.() ?? true),
+      }, layoutEntry]),
     { gap: 0, align: "stretch" },
   );
   const sidebarScroll = createSidebarScrollView(sidebar, theme, () => tui.terminal.rows);

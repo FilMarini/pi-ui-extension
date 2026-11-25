@@ -5,6 +5,7 @@ import {
   type ExtensionAPI,
   type ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
+import { installOpenAI } from "./openai.ts";
 import { installContextEstimates } from "./ctx/data.ts";
 import { createPanelContextUsage, panelContextUsageReader, type ContextUsageCache } from "./ctx/usage.ts";
 import { createActivityTracker, createStreamingTokenSampler, type ActivityTracker } from "./ctx/activity.ts";
@@ -61,6 +62,7 @@ export default async function piUiExtension(pi: ExtensionAPI): Promise<void> {
   let toolViewMode: ToolViewMode | undefined;
   let footer: FooterController | undefined;
   let sidebar: SidebarController | undefined;
+  const openaiPanels = installOpenAI(pi, () => sidebar?.refresh());
   let contextUsage: ContextUsageCache | undefined;
   let activity: ActivityTracker | undefined;
   let toolUsage: ToolUsageTracker | undefined;
@@ -336,7 +338,7 @@ export default async function piUiExtension(pi: ExtensionAPI): Promise<void> {
           },
         });
         // Wiring only: the sidebar owns the file format and all width policy.
-        sidebar = installSidebar(tui, theme, panels, { layoutPath: SIDEBAR_LAYOUT_FILE });
+        sidebar = installSidebar(tui, theme, [...panels, ...openaiPanels], { layoutPath: SIDEBAR_LAYOUT_FILE });
         if (!sidebar.mounted) {
           ctx.ui.setStatus("pi-ui-extension:sidebar", t("notify.sidebarFullscreen"));
         }

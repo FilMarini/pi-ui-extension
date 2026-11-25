@@ -31,6 +31,22 @@ Panels support mouse interaction, scrolling, and terminal resizing. Session mana
 
 The interface uses one language at a time. Chinese is selected when `LC_ALL`, then `LC_MESSAGES`, then `LANG` names a `zh` locale; otherwise the interface is English. Set `PI_UI_LANG=zh` or `PI_UI_LANG=en` (`PI_UI_LANGUAGE` is accepted too) to override that choice.
 
+### OpenAI usage and effort
+
+OpenAI features are built in; **remove/disable `pi-ui-better-openai`** from your Pi packages/extensions to avoid duplicate handlers. Only `pi-ui-extension` is needed.
+
+For `openai` and `openai-codex` models, **USAGE** shows 5h/7d remaining usage bars, reset countdowns, limit status, banked resets, and stale readings. **EFFORT** lets you click to select a supported thinking level or a request mode: **Normal** sets `service_tier: default`; **Fast** sets `priority`. Initially **Default** leaves the tier unchanged. Mode is session-only; Fast depends on account/model support and may increase quota usage or API costs. Avoid conflicting tier overrides in other extensions. Both panels hide and polling stops for other providers.
+
+Authenticate with `/login openai-codex`: direct `openai` credentials cannot access the Codex usage endpoint. Credential resolution prefers pi-multiprovider's active Codex account, then Pi's model registry, then `auth.json`. Credentials are never displayed or logged.
+
+Optional `~/.pi/agent/pi-ui-extension/openai-settings.json` (relative to `PI_CODING_AGENT_DIR` when set):
+
+```json
+{ "enabled": true, "refreshIntervalMs": 30000 }
+```
+
+Reload after editing. Minimum interval is 1000 ms; invalid intervals default to 30 seconds. `enabled: false` disables both panels and polling. If the new settings file cannot be read, the old `pi-ui-better-openai/settings.json` is used as a compatibility fallback. Failed refreshes retain the last snapshot and mark it stale; shutdown aborts pending requests and timers. Usage is fetched from `https://chatgpt.com/backend-api/wham/usage`. Adapted helpers are covered by `OPENAI-SOURCE-LICENSE`.
+
 ### Sessions and cleanup
 
 The **SESSIONS** panel lists recent sessions for the current project. Click a session to switch, or use its actions to rename (`✎`), pin/unpin (`☆` / `★`), delete (`×`), and refresh (`↻`). Pinned sessions appear first.

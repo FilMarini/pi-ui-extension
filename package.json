@@ -52,7 +52,8 @@
     "extensions",
     "!extensions/**/*.test.ts",
     "README.md",
-    "README.zh-CN.md"
+    "README.zh-CN.md",
+    "OPENAI-SOURCE-LICENSE"
   ],
   "repository": {
     "type": "git",
