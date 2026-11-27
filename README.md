@@ -88,7 +88,7 @@ The **CTX** panel shows:
 
 - Current model, Thinking level, context window/usage, current-run context change, and image count.
 - Context composition: `System`, `Tools`, `Messages`, `Tool Results`, `Summary`, and `Other`.
-- Run turns and elapsed time, average time to first output (**TTFT**), average output speed (**TPS**), the latest TTFT, and available cache metrics.
+- Run turns and elapsed time, average time to first output (**TTFT**), average output speed (**TPS**), the latest TTFT and TPS, and available cache metrics.
 
 **Token composition is an estimate**, intended to help understand context usage. It is not exact provider usage or billing data.
 

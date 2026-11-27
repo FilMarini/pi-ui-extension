@@ -84,19 +84,25 @@ test("activity rows render below the composition and bar", () => {
  const output=lines.join("\n");
  assert.doesNotMatch(output,/ACTIVITY/);
  assert.match(output,/2 turns · 3s · AVG TTFT 1\.0s · AVG TPS 40\.0/);
- assert.match(output,/TTFT 1\.2s\[fast\]/);
+ // The current row shows the latest TTFT and the latest TPS for every provider.
+ assert.match(output,/TTFT 1\.2s\[fast\] · TPS 30\.0\[normal\]/);
  const activityTop=lines.findIndex(line=>line.includes("2 turns"));
  assert.ok(lines.findIndex(line=>line.includes("Images"))<activityTop);
  assert.ok(activityTop>lines.findIndex(line=>line.includes("25%/200K")));
  assert.ok(lines.every(line=>visibleWidth(line)<=50));
  const settled=new ContextPanel({fg:(_c:string,s:string)=>s} as any,{
-  getDesiredWidth:()=>18,getUsage:()=>({percent:25,contextWindow:200000} as any),
+  getDesiredWidth:()=>46,getUsage:()=>({percent:25,contextWindow:200000} as any),
   getModel:()=>"model",getThinkingLevel:()=>"off",now:()=>4000,
   getActivity:()=>({...activity,phase:"settled",durationMs:3000} as any),
  });
  const narrow=settled.render(18);
  assert.match(narrow.join("\n"),/done 3s/);
  assert.ok(narrow.every(line=>visibleWidth(line)<=18));
+ // A wider compact header keeps the speed visible instead of dropping it.
+ const compact=settled.render(46);
+ assert.match(compact.join("\n"),/2T done 3s · TPS 40/);
+ const current=compact.join("\n");
+ assert.match(current,/TTFT 1\.2s\[fast\] · TPS 30\.0\[normal\]/);
  const idle=new ContextPanel({fg:(_c:string,s:string)=>s} as any,{
   getDesiredWidth:()=>50,getUsage:()=>({percent:25,contextWindow:200000} as any),
   getModel:()=>"model",getThinkingLevel:()=>"off",now:()=>4000,

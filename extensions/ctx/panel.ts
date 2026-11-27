@@ -66,23 +66,38 @@ function activityRows(
   const plain = (value: string): string => value.replace(/\[[^\]]+\]/g, "");
   const average = `AVG TTFT ${plain(formatTtft(activity.averagePerformance?.ttftMs))} · AVG TPS ${plain(formatTps(activity.averagePerformance?.tokensPerSecond))}`;
   const compact = `${t("ctx.turnsCompact", { count: activity.turns.length })} ${activity.phase === "settled" ? `${t(activity.aborted ? "ctx.aborted" : "ctx.done")} ` : ""}${duration}`;
-  const header = [`${status} · ${average}`, status, compact, average]
+  // Keep the speed visible even when the full status and averages do not fit.
+  const averageTps = activity.averagePerformance?.tokensPerSecond;
+  const compactWithTps = averageTps !== undefined && Number.isFinite(averageTps)
+    ? `${compact} · TPS ${plain(formatTps(averageTps))}`
+    : undefined;
+  const header = [`${status} · ${average}`, compactWithTps, status, average]
+    .filter((candidate): candidate is string => candidate !== undefined)
     .find((candidate) => visibleWidth(candidate) <= contentWidth) ?? compact;
   const statusColor: PanelColor = activity.phase === "running"
     ? "warning"
     : activity.aborted ? "warning" : activity.failedCount > 0 ? "error" : "success";
   const performances = activity.turns.map((turn) => turn.durationMs === undefined ? activity.performance : turn.performance);
   let ttft: number | undefined;
+  let tps: number | undefined;
   for (let index = performances.length - 1; index >= 0; index--) {
-    const value = performances[index]?.ttftMs;
-    if (value !== undefined && Number.isFinite(value)) { ttft = value; break; }
+    const sample = performances[index];
+    if (ttft === undefined && sample?.ttftMs !== undefined && Number.isFinite(sample.ttftMs)) ttft = sample.ttftMs;
+    if (tps === undefined && sample?.tokensPerSecond !== undefined && Number.isFinite(sample.tokensPerSecond)) tps = sample.tokensPerSecond;
+    if (ttft !== undefined && tps !== undefined) break;
   }
+  if (tps === undefined && averageTps !== undefined && Number.isFinite(averageTps)) tps = averageTps;
   const pending = activity.phase === "running" && activity.turns.length > 0 && ttft === undefined;
   return [
     panelContent(theme, "─".repeat(contentWidth), "dim", contentWidth),
     panelContent(theme, header, statusColor, contentWidth),
-    // Latest observed TTFT, not the run average: AVG TTFT stays in the header.
-    panelContent(theme, `TTFT ${formatTtft(ttft)}${pending ? ` · ${t("ctx.pending")}` : ""}`, "accent", contentWidth),
+    // Latest observed TTFT and TPS, not the run averages: AVG values stay in the header.
+    panelContent(
+      theme,
+      `TTFT ${formatTtft(ttft)}${tps === undefined ? "" : ` · TPS ${formatTps(tps)}`}${pending ? ` · ${t("ctx.pending")}` : ""}`,
+      "accent",
+      contentWidth,
+    ),
   ];
 }
 

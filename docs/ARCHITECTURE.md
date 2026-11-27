@@ -44,7 +44,7 @@ A Pi process **not running this extension cannot be reliably detected** by this 
 
 ## CTX estimation and refresh
 
-CTX shows the active model and Thinking level, context size and usage, current-run delta, image count, category composition, and speed measurements (run turns/duration, average TTFT/TPS, latest TTFT, cache indicators where observable).
+CTX shows the active model and Thinking level, context size and usage, current-run delta, image count, category composition, and speed measurements (run turns/duration, average TTFT/TPS, latest TTFT/TPS, cache indicators where observable).
 
 The `System`, `Tools`, `Messages`, `Tool Results`, `Summary`, and `Other` breakdown uses **local heuristic token estimates**. It is for composition and trend analysis, **not provider-exact tokenization or billing**. For tools, prefer the actual observable provider-request tool payload; before a provider request is available, estimate Pi's enabled tool schemas instead.
 
